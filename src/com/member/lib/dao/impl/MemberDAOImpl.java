@@ -56,8 +56,8 @@ public class MemberDAOImpl implements MemberDAO {
 			con = Connector.open();
 			String sql = "update member";
 			sql += " set m_name=?,";
-			sql += " set m_id=?,";
-			sql += " set m_pwd=?";
+			sql += " m_id=?,";
+			sql += " m_pwd=?";
 			sql += " where m_num=?";
 			ps = con.prepareStatement(sql);
 			ps.setString(1, Member.get("m_name").toString());
@@ -87,7 +87,7 @@ public class MemberDAOImpl implements MemberDAO {
 	public int deleteMember(int mNum) {
 		Connection con = null;
 		PreparedStatement ps = null;
-		int result =0;
+		int result = 0;
 		try {
 			con = Connector.open();
 			String sql = "delete from member where m_num=?";
@@ -95,17 +95,20 @@ public class MemberDAOImpl implements MemberDAO {
 			ps.setInt(1, mNum);
 			result = ps.executeUpdate();
 			con.rollback();
-		}catch(Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {
-			if (ps != null) {
-				ps.close();
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+
+			} catch (SQLException e) {
+				e.printStackTrace();
 			}
-			if (con != null) {
-				con.close();
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
 		}
 		return result;
 	}
@@ -147,6 +150,7 @@ public class MemberDAOImpl implements MemberDAO {
 		}
 	}
 	 return memberList;
+	}
 
 	@Override
 	public Map<String, Object> selectMember(int mNum) {

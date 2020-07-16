@@ -10,23 +10,56 @@ import java.util.List;
 import java.util.Map;
 
 import com.member.lib.common.Connector;
-import com.member.lib.dao.BookDAO;
+import com.member.lib.dao.LentDAO;
 
-public class BookDAOImpl implements BookDAO {
+public class LentDAOImpl implements LentDAO {
 
 	@Override
-	public int insertBook(Map<String, Object> book) {
+	public int insertLent(Map<String, Object> lent) {
 		Connection con = null;
 		PreparedStatement ps = null;
 		int result = 0;
 		try {
 			con = Connector.open();
-			String sql = "insert into book (b_num, b_title, b_author, b_credat, b_desc)";
-			sql += "values(seq_book_b_num.nextval,?,?,sysdate,?)";
+			String sql = "insert into lent (l_num, l_lentdate, l_recdate, m_num, b_num)";
+			sql += "values(seq_lent_l_num.nextval,sysdate,sysdate,?,?)";
 			ps = con.prepareStatement(sql);
-			ps.setString(1, book.get("b_title").toString());
-			ps.setString(2, book.get("b_author").toString());
-			ps.setString(3, book.get("b_desc").toString());
+			ps.setInt(1,(int)lent.get("l_num"));
+			
+			result = ps.executeUpdate();
+			con.commit();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return 0;
+	}
+
+	@Override
+	public int updateLent(Map<String, Object> lent) {
+		Connection con = null;
+		PreparedStatement ps = null;
+		int result = 0;
+		try {
+			con = Connector.open();
+			String sql = "update lent";
+			sql += " set m_num=?,";
+			sql += " b_num=?";
+			sql += " where l_num=?";
+			ps = con.prepareStatement(sql);
+			ps.setInt(1, (int)lent.get("m_num"));
+			ps.setInt(2, (int)lent.get("b_num"));
+			ps.setInt(3, (int)lent.get("l_num"));
 			result = ps.executeUpdate();
 			con.commit();
 		} catch (Exception e) {
@@ -45,52 +78,16 @@ public class BookDAOImpl implements BookDAO {
 		}
 		return result;
 	}
-
 	@Override
-	public int updateBook(Map<String, Object> book) {
+	public int deleteLent(int lNum) {
 		Connection con = null;
 		PreparedStatement ps = null;
 		int result = 0;
 		try {
 			con = Connector.open();
-			String sql = "update book";
-			sql += " set b_title=?,";
-			sql += " b_author=?,";
-			sql += " b_desc=?";
-			sql += " where b_num=?";
+			String sql = "delete from lent where l_num=?"; // db에서는 =는 뭐뭐이다, 대입의 경우 :=
 			ps = con.prepareStatement(sql);
-			ps.setString(1, book.get("b_title").toString());
-			ps.setString(2, book.get("b_author").toString());
-			ps.setString(3, book.get("b_desc").toString());
-			ps.setInt(4, (int)book.get("b_num"));
-			result = ps.executeUpdate();
-			con.commit();
-		} catch (Exception e) {
-			e.printStackTrace();
-		} finally {
-			try {
-				if (ps != null) {
-					ps.close();
-				}
-				if (con != null) {
-					con.close();
-				}
-			} catch (SQLException e) {
-				e.printStackTrace();
-			}
-		}
-		return result;
-	}
-	@Override
-	public int deleteBook(int bNum) {
-		Connection con = null;
-		PreparedStatement ps = null;
-		int result = 0;
-		try {
-			con = Connector.open();
-			String sql = "delete from book where b_num=?"; // db에서는 =는 뭐뭐이다, 대입의 경우 :=
-			ps = con.prepareStatement(sql);
-			ps.setInt(1, bNum);
+			ps.setInt(1, lNum);
 			result = ps.executeUpdate();
 			con.rollback();
 		} catch (Exception e) {
@@ -111,25 +108,25 @@ public class BookDAOImpl implements BookDAO {
 	}
 
 	@Override
-	public List<Map<String, Object>> selectBookList(Map<String, Object> book) {
-		List<Map<String, Object>> bookList = new ArrayList<Map<String, Object>>();
+	public List<Map<String, Object>> selectLentList(Map<String, Object> lent) {
+		List<Map<String, Object>> lentList = new ArrayList<Map<String, Object>>();
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		int result = 0;
 		try {
 			con = Connector.open();
-			String sql = "select b_num, b_title, b_author, b_credat, b_desc from book";
+			String sql = "select l_num, l_lentdate, l_recdate, m_num, b_num from lent";
 			ps = con.prepareStatement(sql);
 			rs = ps.executeQuery();
 			while (rs.next()) {
 				Map<String, Object> map = new HashMap<>();
+				map.put("l_num", rs.getInt("l_num"));
+				map.put("l_lentdate", rs.getString("l_lentdate"));
+				map.put("l_recdate", rs.getString("l_recdate"));
+				map.put("m_num", rs.getInt("m_num"));
 				map.put("b_num", rs.getInt("b_num"));
-				map.put("b_title", rs.getString("b_title"));
-				map.put("b_author", rs.getString("b_author"));
-				map.put("b_credat", rs.getString("b_credat"));
-				map.put("b_desc", rs.getString("b_desc"));
-				bookList.add(map); // 맵 돌릴때마다 에드 돌림
+				lentList.add(map); // 맵 돌릴때마다 에드 돌림
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -145,27 +142,27 @@ public class BookDAOImpl implements BookDAO {
 				e.printStackTrace();
 			}
 		}
-		return bookList;
+		return lentList;
 	}
 
 	@Override
-	public Map<String, Object> selectBook(int bNum) {
+	public Map<String, Object> selectLent(int lNum) {
 		Connection con = null;
 		PreparedStatement ps = null;
 		ResultSet rs = null;
 		try {
 			con = Connector.open();
-			String sql = "select b_num, b_title, b_author, b_credat, B_desc from book where b_num=?";
+			String sql = "select l_num, l_lentdate, l_redate, m_num, b_num from lent where l_num=?";
 			ps = con.prepareStatement(sql);
-			ps.setInt(1, bNum);
+			ps.setInt(1, lNum);
 			rs = ps.executeQuery();
 			if (rs.next()) {
 				Map<String, Object> map = new HashMap<>();
+				map.put("l_num", rs.getInt("l_num"));
+				map.put("l_lentdate", rs.getString("l_lentdate"));
+				map.put("l_recdate", rs.getString("l_recdate"));
+				map.put("m_num", rs.getInt("m_num"));
 				map.put("b_num", rs.getInt("b_num"));
-				map.put("b_title", rs.getString("b_title"));
-				map.put("b_author", rs.getString("b_author"));
-				map.put("b_credat", rs.getString("b_credat"));
-				map.put("b_desc", rs.getString("b_desc"));
 				return map;
 			}
 		} catch (Exception e) {
@@ -176,20 +173,21 @@ public class BookDAOImpl implements BookDAO {
 	}
 
 	public static void main(String[] args) {
-		BookDAO bdao = new BookDAOImpl();
+		LentDAO bdao = new LentDAOImpl();
 		Map<String, Object> map = new HashMap<>();
-		map.put("b_title", "자바의 정석");
-		map.put("b_author", "남궁성");
-		map.put("b_desc", "광고 오진다");
-		// bdao.insertBook(map);
-		// List<Map<String,Object>> bookList = bdao.selectBookList(map);
-		// System.out.println(bookList);
-		// System.out.println(bdao.selectBook(1));
-		//int result = bdao.deleteBook(21);
+		map.put("m_num", 1);
+		map.put("b_num", 1);
+		bdao.insertLent(map);
+		// List<Map<String,Object>> lentList = bdao.selectLentList(map);
+		// System.out.println(lentList);
+		// System.out.println(bdao.selectLent(1));
+		//int result = bdao.updateLent(2);
 		//System.out.println("삭제 갯수: " + result);
-		map.put("b_num", 2);
-		int result = bdao.updateBook(map);
-		System.out.println("수정 갯수 :" +result);
+		
+	
+		//System.out.println("수정 갯수 :" +result);
 	}
+
+	
 
 }
