@@ -56,4 +56,10 @@ public class LentServiceImpl implements LentService {
 		 Map<String,Object> map = new HashMap<>();
 		 List<Map<String,Object>> rMap = lentService.selectLentList(map);
 	}
+
+	@Override
+	public List<Map<String, Object>> selectNoLentBookList() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }

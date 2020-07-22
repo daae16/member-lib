@@ -132,6 +132,7 @@ public class MemberDAOImpl implements MemberDAO {
 				map.put("m_num", rs.getInt("m_num"));
 				map.put("m_name", rs.getString("m_name"));
 				map.put("m_pwd", rs.getString("m_pwd"));
+				map.put("m_id", rs.getString("m_id"));
 				map.put("m_credat", rs.getString("m_credat"));
 				memberList.add(map);
 		 }

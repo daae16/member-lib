@@ -1,35 +1,24 @@
 package com.member.lib.servlet;
 
 import java.io.IOException;
+import java.io.PrintWriter;
 
-import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-public class ViewServlet extends HttpServlet {
+public class BookServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
-	private static final String PREFIX="/WEB-INF";
-	private static final String SUFIX=".jsp";
-
-    public ViewServlet() {
-    }
-
+       
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String uri = request.getRequestURI();//.substring(6);
-		//PrintWriter pw = response.getWriter();
-		RequestDispatcher rd = request.getRequestDispatcher(PREFIX + uri + SUFIX);
-		rd.forward(request, response);
-		//pw.println(uri);
-
+		// TODO Auto-generated method stub
+		PrintWriter pw = response.getWriter();
+		pw.append("Served at: ").append(request.getContextPath());
 	}
 
 	protected void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-		String uri = request.getRequestURI();
-		if("member/insert".equals(uri)) {
-			
-		}
+		// TODO Auto-generated method stub
 		doGet(request, response);
 	}
 

@@ -188,6 +188,45 @@ public class LentDAOImpl implements LentDAO {
 		//System.out.println("수정 갯수 :" +result);
 	}
 
+	@Override
+	public List<Map<String, Object>> selectNoLentBookList() {
+		List<Map<String, Object>> lentList = new ArrayList<Map<String, Object>>();
+		Connection con = null;
+		PreparedStatement ps = null;
+		ResultSet rs = null;
+		int result = 0;
+		try {
+			con = Connector.open();
+			String sql = "select b_num,b_title from book" +
+					"where b_num not in(select b_num from lent"+
+							"where l_recdate is null)";
+			ps = con.prepareStatement(sql);
+			rs = ps.executeQuery();
+			while (rs.next()) {
+				Map<String, Object> map = new HashMap<>();
+				map.put("b_num", rs.getInt("b_num"));
+				map.put("b_title" , rs.getString("b_title"));
+				lentList.add(map); // 맵 돌릴때마다 에드 돌림
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			try {
+				if (ps != null) {
+					ps.close();
+				}
+				if (con != null) {
+					con.close();
+				}
+			} catch (SQLException e) {
+				e.printStackTrace();
+			}
+		}
+		return lentList;
+	}
+}
+
+
 	
 
-}
+
